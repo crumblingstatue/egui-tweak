@@ -35,7 +35,7 @@ macro_rules! tweak {
     ) => {
         $crate::paste! {
             $(
-                static [<TWEAK_ $ident:upper>]: Mutex<$t> = Mutex::new($init);
+                static [<TWEAK_ $ident:upper>]: ::std::sync::Mutex<$t> = std::sync::Mutex::new($init);
             )*
             egui::Window::new($window_name).show($egui_ctx, |ui| {
                 $(
