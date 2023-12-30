@@ -12,8 +12,8 @@ pub use paste::paste;
 ///
 /// ```
 ///     tweak! {
-///        egui_ctx,
-///        "Health bar",
+///        egui_ctx, // The egui context
+///        health_bar, // Unique identifier for this group of tweakable variables
 ///        // We want to draw a health bar, but don't know where on the screen it should be.
 ///        // We want to experiment at runtime, so we just give some rough initial values,
 ///        // and tweak them with an egui ui until they are just right.
@@ -30,23 +30,31 @@ pub use paste::paste;
 macro_rules! tweak {
     (
         $egui_ctx: expr,
-        $window_name:expr,
+        $group_ident:ident,
         $($ident:ident: $t:ty = $init:expr;)*
     ) => {
         $crate::paste! {
-            $(
-                static [<TWEAK_ $ident:upper>]: ::std::sync::Mutex<$t> = std::sync::Mutex::new($init);
-            )*
-            egui::Window::new($window_name).show($egui_ctx, |ui| {
+            struct [<TweakGroup $group_ident:camel>] {
+                $(
+                    $ident: $t,
+                )*
+            }
+            static [<TWEAK_ $group_ident:upper>]: ::std::sync::Mutex<[<TweakGroup $group_ident:camel>]> = std::sync::Mutex::new([<TweakGroup $group_ident:camel>] {
+                $(
+                    $ident: $init,
+                )*
+            });
+            let mut tweak_local_guard = [<TWEAK_ $group_ident:upper>].lock().unwrap();
+            egui::Window::new(stringify!($group_ident)).show($egui_ctx, |ui| {
                 $(
                     ui.horizontal(|ui| {
                         ui.label(stringify!($ident));
-                        ui.add(egui::DragValue::new(&mut *[<TWEAK_ $ident:upper>].lock().unwrap()));
+                        ui.add(egui::DragValue::new(&mut tweak_local_guard.$ident));
                     });
                 )*
             });
             $(
-                    let $ident: $t = *[<TWEAK_ $ident:upper>].lock().unwrap();
+                    let $ident: $t = tweak_local_guard.$ident;
             )*
         }
     };
