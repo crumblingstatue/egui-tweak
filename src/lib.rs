@@ -1,7 +1,8 @@
 //! Provides a macro for quickly declaring numeric variables that can be tweaked through egui.
 #![warn(missing_docs)]
 
-/// Token pasting macro used by the tweak macro internally
+// Token pasting macro used by the tweak macro internally
+#[doc(hidden)]
 pub use paste::paste;
 
 /// Conveniently declare some numeric variables that can be tweaked through egui.
