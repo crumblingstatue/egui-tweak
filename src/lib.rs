@@ -6,7 +6,7 @@ pub use paste::paste;
 
 /// Conveniently declare some numeric variables that can be tweaked through egui.
 ///
-/// The types must statisfy the egui `Numeric` trait, and must be `Clone`.
+/// The types must statisfy the egui `Numeric` trait, and must be `Copy`.
 ///
 /// Example usage:
 ///
